@@ -23,9 +23,9 @@ sudo dpkg -i vagrant_2.2.19_x86_64.deb
 ```
 vagrant plugin install vagrant-disksize
 ```
-- Clone this repository to the folder on your C: drive, for example c:\k8s-vagrant-virtualbox
+- Clone this repository to the folder on your C: drive, for example c:\k8s-vagrant-virtualbox and try to launch hosts one by one starting from master.
 
-# Issues with vagrant in WSL and fixes
+## Issues with vagrant in WSL and fixes
 - vagrant can't use Virtualbox
 ```
 user@/mnt/c/k8s-vagrant-virtualbox$ vagrant status
@@ -92,14 +92,13 @@ Fix:
 export VAGRANT_WSL_WINDOWS_ACCESS_USER_HOME_PATH="/mnt/c/k8s-vagrant-virtualbox"
 or
 export VAGRANT_WSL_WINDOWS_ACCESS_USER_HOME_PATH="$(pwd)"
-- Permission denied (publickey) when you trying ssh to the instance like vagrant ssh master. SSH key reside on windows disk and has 777 permissions.
+- Permission denied (publickey) when you trying ssh to the instance like "vagrant ssh master". SSH key reside on windows disk and has 777 permissions.
 ```
 user@computer:/mnt/c/k8s-vagrant-virtualbox$ vagrant ssh master
 vagrant@127.0.0.1: Permission denied (publickey).
 ```
-try to debug:    vagrant ssh master --debug
-try other way:   ssh vagrant@127.0.0.1 -p 2200 -i /mnt/c/k8s-vagrant-virtualbox/.vagrant/machines/master/virtualbox/private_key
-last one shows the cause of the isssue - key permissions
+try to debug:    "vagrant ssh master --debug"
+try other way:   "ssh vagrant@127.0.0.1 -p 2200 -i /mnt/c/k8s-vagrant-virtualbox/.vagrant/machines/master/virtualbox/private_key". This command will show the cause of the isssue - key permissions
 
 Workaround:
 ```
@@ -111,5 +110,5 @@ mv /mnt/c/k8s-vagrant-virtualbox/.vagrant/machines/master/virtualbox/private_key
 ln -s ~/.ssh/private_key /mnt/c/k8s-vagrant-virtualbox/.vagrant/machines/master/virtualbox/private_key
 vagrant ssh master                                      # <--- works
 ```
-or you can try script ./ssh_key_copy.sh, which will do the same. Script accept 1 parameter - node name, ex. "ssh_key_copy.sh master"
+or you can try script ./ssh_key_copy.sh, which will do the same. Script accept 1 parameter - node name, ex. "ssh_key_copy.sh master"2
 
