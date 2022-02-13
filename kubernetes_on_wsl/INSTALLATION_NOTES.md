@@ -41,8 +41,8 @@ this to be available on the PATH. If VirtualBox is installed, please find the
 ```
 Fix (https://www.vagrantup.com/docs/other/wsl): 
 ```
-export VAGRANT_WSL_ENABLE_WINDOWS_ACCESS="1"
-export PATH=$PATH:"/mnt/c/Program Files/Oracle/VirtualBox:/mnt/c/Windows/System32"
+vi 
+export ls -l PATH=$PATH:"/mnt/c/Program Files/Oracle/VirtualBox:/mnt/c/Windows/System32:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/"
 ```
 - Next issue:
 ```
@@ -89,3 +89,30 @@ config.vm.provider "virtualbox" do |v|
     v.customize [ "modifyvm", :id, "--uartmode1", "disconnected" ]      <----- Fix
 end
 ```
+- Next issue arise when you running "vagrant up master" and vagrant complains about permissions of the ssh key
+
+Fix:
+export VAGRANT_WSL_WINDOWS_ACCESS_USER_HOME_PATH="/mnt/c/k8s-vagrant-virtualbox"
+or
+export VAGRANT_WSL_WINDOWS_ACCESS_USER_HOME_PATH="$(pwd)"
+- Next issue arise if you using windows filesystem to launch vagrant. Ssh key has 777 permissions.
+```
+user@computer:/mnt/c/k8s-vagrant-virtualbox$ vagrant ssh master
+vagrant@127.0.0.1: Permission denied (publickey).
+```
+try to debug:    vagrant ssh master --debug
+try other way:   ssh vagrant@127.0.0.1 -p 2200 -i /mnt/c/k8s-vagrant-virtualbox/.vagrant/machines/master/virtualbox/private_key
+last one shows the cause of the isssue - key permissions
+
+Workaround:
+```
+cp /mnt/c/k8s-vagrant-virtualbox/.vagrant/machines/master/virtualbox/private_key ~/.ssh/
+chmod 600 ~/.ssh/private_key
+ssh vagrant@127.0.0.1 -p 2200 -i ~/.ssh/private_key     # <----- works
+
+mv /mnt/c/k8s-vagrant-virtualbox/.vagrant/machines/master/virtualbox/private_key /mnt/c/k8s-vagrant-virtualbox/.vagrant/machines/master/virtualbox/private_key-backup
+ln -s ~/.ssh/private_key /mnt/c/k8s-vagrant-virtualbox/.vagrant/machines/master/virtualbox/private_key
+vagrant ssh master                                      # <--- works
+```
+or you can try script ./ssh_key_copy.sh, which will do this. Script accept 1 parameter - node name, ex. "ssh_key_copy.sh master"
+
