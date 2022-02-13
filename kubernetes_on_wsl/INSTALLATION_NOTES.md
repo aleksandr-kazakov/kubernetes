@@ -1,5 +1,5 @@
 # Kubernetes Setup Using Ansible and Vagrant on WSL
-We will be using vagrant file from https://github.com/LocusInnovations/k8s-vagrant-virtualbox
+Vagrantfile has been taken from https://github.com/LocusInnovations/k8s-vagrant-virtualbox and slightly modified.
 
 ## Prerequisites:
 - Virtualbox installed on Windows directly "VirtualBox-6.0.24-139119-Win.exe" (supported by Vagrant 2.2.19) 
@@ -23,11 +23,10 @@ sudo dpkg -i vagrant_2.2.19_x86_64.deb
 ```
 vagrant plugin install vagrant-disksize
 ```
-- Clone repository https://github.com/LocusInnovations/k8s-vagrant-virtualbox
-```
-git clone https://github.com/LocusInnovations/k8s-vagrant-virtualbox
-```
-- First problem - vagrant can't use Virtualbox
+- Clone this repository to the folder on your C: drive, for example c:\k8s-vagrant-virtualbox
+
+# Issues with vagrant in WSL and fixes
+- vagrant can't use Virtualbox
 ```
 user@/mnt/c/k8s-vagrant-virtualbox$ vagrant status
 The provider 'virtualbox' that was requested to back the machine
@@ -41,10 +40,9 @@ this to be available on the PATH. If VirtualBox is installed, please find the
 ```
 Fix (https://www.vagrantup.com/docs/other/wsl): 
 ```
-vi 
 export ls -l PATH=$PATH:"/mnt/c/Program Files/Oracle/VirtualBox:/mnt/c/Windows/System32:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/"
 ```
-- Next issue:
+- VBoxManage.exe: error: Could not create the directory ..... (VERR_INVALID_NAME)
 ```
 user@/mnt/c/k8s-vagrant-virtualbox$ vagrant up master
 
@@ -70,7 +68,7 @@ vi /home/user/.vagrant.d/gems/2.7.4/gems/vagrant-disksize-0.1.3/lib/vagrant/disk
           src_path = File.dirname(src)
           src_base = File.basename(src, src_extn)
 ```
-- Next issue:
+- RawFile#0 failed to create the raw output file ..... (VERR_PATH_NOT_FOUND)
 ```
 user@/mnt/c/k8s-vagrant-virtualbox$ vagrant up master
 There was an error while executing `VBoxManage`, a CLI used by Vagrant
@@ -89,13 +87,12 @@ config.vm.provider "virtualbox" do |v|
     v.customize [ "modifyvm", :id, "--uartmode1", "disconnected" ]      <----- Fix
 end
 ```
-- Next issue arise when you running "vagrant up master" and vagrant complains about permissions of the ssh key
-
+- Permission denied (publickey) when you try launch instance like  "vagrant up master"
 Fix:
 export VAGRANT_WSL_WINDOWS_ACCESS_USER_HOME_PATH="/mnt/c/k8s-vagrant-virtualbox"
 or
 export VAGRANT_WSL_WINDOWS_ACCESS_USER_HOME_PATH="$(pwd)"
-- Next issue arise if you using windows filesystem to launch vagrant. Ssh key has 777 permissions.
+- Permission denied (publickey) when you trying ssh to the instance like vagrant ssh master. SSH key reside on windows disk and has 777 permissions.
 ```
 user@computer:/mnt/c/k8s-vagrant-virtualbox$ vagrant ssh master
 vagrant@127.0.0.1: Permission denied (publickey).
@@ -114,5 +111,5 @@ mv /mnt/c/k8s-vagrant-virtualbox/.vagrant/machines/master/virtualbox/private_key
 ln -s ~/.ssh/private_key /mnt/c/k8s-vagrant-virtualbox/.vagrant/machines/master/virtualbox/private_key
 vagrant ssh master                                      # <--- works
 ```
-or you can try script ./ssh_key_copy.sh, which will do this. Script accept 1 parameter - node name, ex. "ssh_key_copy.sh master"
+or you can try script ./ssh_key_copy.sh, which will do the same. Script accept 1 parameter - node name, ex. "ssh_key_copy.sh master"
 
