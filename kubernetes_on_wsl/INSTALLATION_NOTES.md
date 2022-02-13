@@ -1,9 +1,19 @@
 # Kubernetes Setup Using Ansible and Vagrant on WSL
-https://github.com/LocusInnovations/k8s-vagrant-virtualbox
+We will be using vagrant file from https://github.com/LocusInnovations/k8s-vagrant-virtualbox
 
 ## Prerequisites:
 - Virtualbox installed on Windows directly "VirtualBox-6.0.24-139119-Win.exe" (supported by Vagrant 2.2.19) 
-- Install Ubuntu 18.04 from Microsoft Store. When you will be offered to create user - create it with the same name as your windows user. Use this user in WSL. 
+- Install Ubuntu 18.04 from Microsoft Store. When you will be prompted to create user - create it with the same name as your windows user. Use this user during installation in WSL. This is important:
+```
+root@computer:/mnt/c/folder# vagrant status
+The VirtualBox VM was created with a user that doesn't match the
+current user running Vagrant. VirtualBox requires that the same user
+be used to manage the VM that was created. Please re-run Vagrant with
+that user. This is not a Vagrant issue.
+
+The UID used to create the VM was: 1000
+Your UID is: 0
+```  
 - Inside WSL Install Vagrant from https://www.vagrantup.com/downloads.html
 ```
 wget -c https://releases.hashicorp.com/vagrant/2.2.4/vagrant_2.2.19_x86_64.deb
@@ -18,21 +28,6 @@ vagrant plugin install vagrant-disksize
 cd /mnt/c
 git clone https://github.com/LocusInnovations/k8s-vagrant-virtualbox
 ```
-
-- Keep in mind, that you can't launch vagrant as root:
-```
-root@computer:/mnt/c/folder# vagrant status
-/usr/lib/ruby/vendor_ruby/rbnacl/libsodium/version.rb:5: warning: Insecure world writable dir /mnt/c in PATH, mode 040777
-The VirtualBox VM was created with a user that doesn't match the
-current user running Vagrant. VirtualBox requires that the same user
-be used to manage the VM that was created. Please re-run Vagrant with
-that user. This is not a Vagrant issue.
-
-The UID used to create the VM was: 1000
-Your UID is: 0
-```  
-
-
 - First problem - vagrant can't use Virtualbox
 ```
 user@/mnt/c/k8s-vagrant-virtualbox$ vagrant status
@@ -50,9 +45,10 @@ Fix:
 export VAGRANT_WSL_ENABLE_WINDOWS_ACCESS="1"
 export PATH=$PATH:"/mnt/c/Program Files/Oracle/VirtualBox:/mnt/c/Windows/System32"
 ```
-
-Next issue:
+- Next issue:
 ```
+user@/mnt/c/k8s-vagrant-virtualbox$ vagrant up master
+
 There was an error while executing `VBoxManage`, a CLI used by Vagrant
 for controlling VirtualBox. The command and stderr is shown below.
 
@@ -75,8 +71,9 @@ vi /home/user/.vagrant.d/gems/2.7.4/gems/vagrant-disksize-0.1.3/lib/vagrant/disk
           src_path = File.dirname(src)
           src_base = File.basename(src, src_extn)
 ```
-Next issue:
+- Next issue:
 ```
+user@/mnt/c/k8s-vagrant-virtualbox$ vagrant up master
 There was an error while executing `VBoxManage`, a CLI used by Vagrant
 for controlling VirtualBox. The command and stderr is shown below.
 
