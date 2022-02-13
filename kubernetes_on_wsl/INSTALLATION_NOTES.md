@@ -3,7 +3,7 @@ We will be using vagrant file from https://github.com/LocusInnovations/k8s-vagra
 
 ## Prerequisites:
 - Virtualbox installed on Windows directly "VirtualBox-6.0.24-139119-Win.exe" (supported by Vagrant 2.2.19) 
-- Install Ubuntu 18.04 from Microsoft Store. When you will be prompted to create user - create it with the same name as your windows user. Use this user during installation in WSL. This is important:
+- Install Ubuntu 18.04 from Microsoft Store. When you will be prompted to create user - create it with the same name as your windows user. Use this user during installation in WSL. This is important because of this error:
 ```
 root@computer:/mnt/c/folder# vagrant status
 The VirtualBox VM was created with a user that doesn't match the
@@ -25,7 +25,6 @@ vagrant plugin install vagrant-disksize
 ```
 - Clone repository https://github.com/LocusInnovations/k8s-vagrant-virtualbox
 ```
-cd /mnt/c
 git clone https://github.com/LocusInnovations/k8s-vagrant-virtualbox
 ```
 - First problem - vagrant can't use Virtualbox
@@ -40,7 +39,7 @@ Vagrant uses the `VBoxManage` binary that ships with VirtualBox, and requires
 this to be available on the PATH. If VirtualBox is installed, please find the
 `VBoxManage` binary and add it to the PATH environmental variable.
 ```
-Fix: 
+Fix (https://www.vagrantup.com/docs/other/wsl): 
 ```
 export VAGRANT_WSL_ENABLE_WINDOWS_ACCESS="1"
 export PATH=$PATH:"/mnt/c/Program Files/Oracle/VirtualBox:/mnt/c/Windows/System32"
