@@ -88,16 +88,23 @@ config.vm.provider "virtualbox" do |v|
 end
 ```
 - Permission denied (publickey) when you try launch instance like  "vagrant up master"
+
 Fix:
+```
 export VAGRANT_WSL_WINDOWS_ACCESS_USER_HOME_PATH="/mnt/c/k8s-vagrant-virtualbox"
+```
 or
+```
 export VAGRANT_WSL_WINDOWS_ACCESS_USER_HOME_PATH="$(pwd)"
+```
+
 - Permission denied (publickey) when you trying ssh to the instance like "vagrant ssh master". SSH key reside on windows disk and has 777 permissions.
 ```
 user@computer:/mnt/c/k8s-vagrant-virtualbox$ vagrant ssh master
 vagrant@127.0.0.1: Permission denied (publickey).
 ```
 try to debug:    "vagrant ssh master --debug"
+
 try other way:   "ssh vagrant@127.0.0.1 -p 2200 -i /mnt/c/k8s-vagrant-virtualbox/.vagrant/machines/master/virtualbox/private_key". This command will show the cause of the isssue - key permissions
 
 Workaround:
